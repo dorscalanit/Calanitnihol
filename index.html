@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>כלנית | לוח בקרה</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Heebo', sans-serif; background-color: #f7fafc; }
+        .sidebar-link { transition: background-color 0.2s, color 0.2s; }
+        .sidebar-link.active { background-color: #2563EB; color: white; }
+        .sidebar-link:hover:not(.active) { background-color: #eef2ff; color: #1e40af; }
+        .modal { transition: opacity 0.25s ease; }
+        .modal-content { transition: transform 0.25s ease; }
+        .toggle-checkbox:checked { background-color: #2563EB; }
+        .toggle-checkbox:checked::before { transform: translateX(1.25rem); }
+        .table-row-hover:hover { background-color: #f9fafb; }
+    </style>
+</head>
+<body class="flex h-screen">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white shadow-lg flex flex-col">
+        <div class="p-6 text-center border-b">
+            <h1 class="text-2xl font-black text-blue-600">כלנית</h1>
+            <p class="text-sm text-gray-500">מערכת ניהול</p>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="index.html" class="sidebar-link active flex items-center p-3 rounded-lg">
+                <i class="fas fa-briefcase w-6 text-center ml-3"></i> ניהול משרות
+            </a>
+            <a href="job-applicants.html" class="sidebar-link flex items-center p-3 rounded-lg">
+                <i class="fas fa-users w-6 text-center ml-3"></i> פניות למשרות
+            </a>
+            <a href="general-cvs.html" class="sidebar-link flex items-center p-3 rounded-lg">
+                <i class="fas fa-file-alt w-6 text-center ml-3"></i> קורות חיים כלליים
+            </a>
+        </nav>
+        <div class="p-4 border-t">
+            <button id="logout-button" class="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition">
+                <i class="fas fa-sign-out-alt w-6 text-center ml-3"></i> יציאה מהמערכת
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white border-b p-4 flex justify-between items-center">
+            <div>
+                <h2 class="text-xl font-semibold text-gray-800">ניהול משרות</h2>
+                <p id="welcome-message" class="text-sm text-gray-500">ברוך הבא, טוען...</p>
+            </div>
+            <button id="add-job-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center">
+                <i class="fas fa-plus ml-2"></i> הוסף משרה חדשה
+            </button>
+        </header>
+
+        <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
+            <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">שם המשרה</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">מיקום</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">משרה חמה</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="jobs-table-body" class="bg-white divide-y divide-gray-200">
+                        <!-- Jobs will be injected here by JS -->
+                        <tr><td colspan="4" class="text-center p-8 text-gray-500">טוען נתונים...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Job Modal -->
+    <div id="job-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="modal-content bg-white w-full max-w-2xl rounded-lg shadow-2xl p-6 transform -translate-y-10">
+            <h3 id="modal-title" class="text-xl font-bold mb-6">הוספת משרה חדשה</h3>
+            <form id="job-form">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="hidden" id="job-id">
+                    <div><label for="job-title" class="block font-medium text-sm">שם המשרה</label><input type="text" id="job-title" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
+                    <div><label for="job-location" class="block font-medium text-sm">מיקום</label><input type="text" id="job-location" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
+                    <div class="md:col-span-2"><label for="job-type" class="block font-medium text-sm">סוג משרה (מלאה, חלקית...)</label><input type="text" id="job-type" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
+                    <div class="md:col-span-2"><label for="job-description" class="block font-medium text-sm">תיאור המשרה</label><textarea id="job-description" rows="5" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></textarea></div>
+                </div>
+                <div class="mt-6 flex justify-end gap-3">
+                    <button type="button" id="cancel-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">ביטול</button>
+                    <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">שמור משרה</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="delete-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="modal-content bg-white w-full max-w-md rounded-lg shadow-2xl p-6 text-center transform -translate-y-10">
+            <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
+            <h3 class="text-xl font-bold mb-2">אישור מחיקה</h3>
+            <p class="text-gray-600 mb-6">האם אתה בטוח שברצונך למחוק משרה זו? לא ניתן לשחזר את הפעולה.</p>
+            <div class="flex justify-center gap-4">
+                <button id="cancel-delete-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300">ביטול</button>
+                <button id="confirm-delete-btn" class="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700">כן, מחק</button>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
+        const firebaseConfig = { /* ... Your config here ... */ };
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- Auth & UI Setup ---
+        const welcomeMessage = document.getElementById('welcome-message');
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                welcomeMessage.textContent = `ברוך הבא, ${user.displayName || user.email}`;
+                loadJobs();
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+
+        document.getElementById('logout-button').addEventListener('click', () => signOut(auth));
+        
+        // --- Modal Logic ---
+        const jobModal = document.getElementById('job-modal');
+        const deleteModal = document.getElementById('delete-modal');
+        const addJobBtn = document.getElementById('add-job-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const cancelDeleteBtn = document.getElementById('cancel-delete-btn');
+        const jobForm = document.getElementById('job-form');
+        let jobToDeleteId = null;
+
+        const openModal = (modal) => {
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            setTimeout(() => modal.querySelector('.modal-content').classList.remove('-translate-y-10'), 10);
+        };
+        const closeModal = (modal) => {
+            modal.classList.add('opacity-0');
+            modal.querySelector('.modal-content').classList.add('-translate-y-10');
+            setTimeout(() => modal.classList.add('hidden'), 250);
+        };
+        
+        addJobBtn.addEventListener('click', () => {
+            jobForm.reset();
+            document.getElementById('modal-title').textContent = 'הוספת משרה חדשה';
+            openModal(jobModal);
+        });
+
+        cancelBtn.addEventListener('click', () => closeModal(jobModal));
+        cancelDeleteBtn.addEventListener('click', () => closeModal(deleteModal));
+        
+        // --- Firestore Logic ---
+        const jobsCollection = collection(db, "jobs");
+        const jobsTableBody = document.getElementById('jobs-table-body');
+        
+        const loadJobs = () => {
+            const q = query(jobsCollection, orderBy("createdAt", "desc"));
+            onSnapshot(q, snapshot => {
+                if (snapshot.empty) {
+                    jobsTableBody.innerHTML = '<tr><td colspan="4" class="text-center p-8 text-gray-500">עדיין לא נוספו משרות. לחץ על "הוסף משרה חדשה" כדי להתחיל.</td></tr>';
+                    return;
+                }
+                jobsTableBody.innerHTML = '';
+                snapshot.forEach(docSnap => {
+                    const job = docSnap.data();
+                    const jobId = docSnap.id;
+                    const row = document.createElement('tr');
+                    row.className = 'table-row-hover';
+                    row.innerHTML = `
+                        <td class="px-6 py-4 whitespace-nowrap"><div class="font-semibold text-gray-900">${job.title}</div><div class="text-sm text-gray-500">${job.type}</div></td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">${job.location}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" data-id="${jobId}" class="sr-only peer is-hot-toggle" ${job.isHot ? 'checked' : ''}>
+                                <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-blue-600"></div>
+                            </label>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium space-x-4 space-x-reverse">
+                            <button class="text-red-600 hover:text-red-900 delete-btn" data-id="${jobId}"><i class="fas fa-trash-alt"></i> מחק</button>
+                        </td>
+                    `;
+                    jobsTableBody.appendChild(row);
+                });
+            });
+        };
+
+        // Event delegation for table actions
+        jobsTableBody.addEventListener('click', e => {
+            const target = e.target;
+            // Handle Delete
+            if (target.closest('.delete-btn')) {
+                jobToDeleteId = target.closest('.delete-btn').dataset.id;
+                openModal(deleteModal);
+            }
+            // Handle Hot Job Toggle
+            if (target.closest('.is-hot-toggle')) {
+                const checkbox = target.closest('.is-hot-toggle');
+                updateDoc(doc(db, "jobs", checkbox.dataset.id), { isHot: checkbox.checked });
+            }
+        });
+
+        // Handle form submission (Add/Edit)
+        jobForm.addEventListener('submit', async e => {
+            e.preventDefault();
+            // In a real edit scenario, you'd check for job-id here. For now, it only adds.
+            await addDoc(jobsCollection, {
+                title: jobForm['job-title'].value,
+                location: jobForm['job-location'].value,
+                type: jobForm['job-type'].value,
+                description: jobForm['job-description'].value,
+                isHot: false,
+                createdAt: serverTimestamp()
+            });
+            closeModal(jobModal);
+        });
+
+        // Handle delete confirmation
+        document.getElementById('confirm-delete-btn').addEventListener('click', () => {
+            if (jobToDeleteId) {
+                deleteDoc(doc(db, "jobs", jobToDeleteId));
+                jobToDeleteId = null;
+                closeModal(deleteModal);
+            }
+        });
+    </script>
+</body>
+</html>
+
