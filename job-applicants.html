@@ -1,2 +1,83 @@
-<!DOCTYPE html><html lang="he" dir="rtl"><head><meta charset="UTF-8"><title>כלנית | פניות למשרות</title><script src="https://cdn.tailwindcss.com"></script><link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"><style>body { font-family: 'Heebo', sans-serif; } .sidebar-link { transition: all 0.2s; } .sidebar-link.active { background-color: #2563EB; color: white; } .sidebar-link:hover:not(.active) { background-color: #eef2ff; color: #1e40af; }</style></head><body class="flex h-screen bg-gray-100"><aside class="w-64 bg-white shadow-lg flex flex-col"><div class="p-6 text-center border-b"><h1 class="text-2xl font-black text-blue-600">כלנית</h1><p class="text-sm text-gray-500">מערכת ניהול</p></div><nav class="flex-1 px-4 py-6 space-y-2"><a href="index.html" class="sidebar-link flex items-center p-3 rounded-lg"><i class="fas fa-briefcase w-6 text-center ml-3"></i> ניהול משרות</a><a href="job-applicants.html" class="sidebar-link active flex items-center p-3 rounded-lg"><i class="fas fa-users w-6 text-center ml-3"></i> פניות למשרות</a><a href="general-cvs.html" class="sidebar-link flex items-center p-3 rounded-lg"><i class="fas fa-file-alt w-6 text-center ml-3"></i> קורות חיים כלליים</a></nav><div class="p-4 border-t"><button id="logout-button" class="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition"><i class="fas fa-sign-out-alt w-6 text-center ml-3"></i> יציאה</button></div></aside><div class="flex-1 flex flex-col overflow-hidden"><header class="bg-white border-b p-4"><h2 class="text-xl font-semibold text-gray-800">פניות שהתקבלו למשרות</h2></header><main class="flex-1 overflow-y-auto p-6"><div class="text-center p-12 bg-white rounded-lg shadow-md"><i class="fas fa-inbox text-5xl text-gray-300 mb-4"></i><h3 class="text-xl font-bold text-gray-700">רשימת הפניות למשרות תוצג כאן</h3><p class="text-gray-500 mt-2">בשלב הבא נחבר את העמוד לבסיס הנתונים.</p></div></main></div></body></html>
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>כלנית | פניות למשרות</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <style>
+        body { font-family: 'Heebo', sans-serif; }
+        .sidebar-link { transition: all 0.2s; }
+        .sidebar-link.active { background-color: #2563EB; color: white; }
+        .sidebar-link:hover:not(.active) { background-color: #eef2ff; color: #1e40af; }
+    </style>
+</head>
+<body class="flex h-screen bg-gray-100">
+
+    <!-- Sidebar Navigation -->
+    <aside class="w-64 bg-white shadow-lg flex flex-col">
+        <div class="p-6 text-center border-b">
+            <h1 class="text-2xl font-black text-blue-600">כלנית</h1>
+            <p class="text-sm text-gray-500">מערכת ניהול</p>
+        </div>
+        <nav class="flex-1 px-4 py-6 space-y-2">
+            <a href="index.html" class="sidebar-link flex items-center p-3 rounded-lg">
+                <i class="fas fa-briefcase w-6 text-center ml-3"></i> ניהול משרות
+            </a>
+            <a href="job-applicants.html" class="sidebar-link active flex items-center p-3 rounded-lg">
+                <i class="fas fa-users w-6 text-center ml-3"></i> פניות למשרות
+            </a>
+            <a href="general-cvs.html" class="sidebar-link flex items-center p-3 rounded-lg">
+                <i class="fas fa-file-alt w-6 text-center ml-3"></i> קורות חיים כלליים
+            </a>
+        </nav>
+        <div class="p-4 border-t">
+            <button id="logout-button" class="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition">
+                <i class="fas fa-sign-out-alt w-6 text-center ml-3"></i> יציאה מהמערכת
+            </button>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col overflow-hidden">
+        <header class="bg-white border-b p-4">
+            <h2 class="text-xl font-semibold text-gray-800">פניות שהתקבלו למשרות</h2>
+        </header>
+        <main class="flex-1 overflow-y-auto p-6">
+            <div class="text-center p-12 bg-white rounded-lg shadow-md">
+                <i class="fas fa-inbox text-5xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-bold text-gray-700">רשימת הפניות למשרות תוצג כאן</h3>
+                <p class="text-gray-500 mt-2">בשלב הבא נחבר את העמוד לבסיס הנתונים.</p>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+        import { getAuth, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyAOKMJabnJ9JGE5CuclCCSjv5Bo3rT49Cw",
+            authDomain: "calanit-31a32.firebaseapp.com",
+            projectId: "calanit-31a32",
+            storageBucket: "calanit-31a32.appspot.com",
+            messagingSenderId: "91430351613",
+            appId: "1:91430351613:web:ae46b2063f2d4b71428494",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById('logout-button').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                window.location.href = 'login.html';
+            }).catch(error => console.error('Sign out error', error));
+        });
+    </script>
+</body>
+</html>
 
