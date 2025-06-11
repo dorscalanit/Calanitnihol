@@ -16,85 +16,51 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .modal { transition: opacity 0.25s ease; }
         .modal-content { transition: transform 0.25s ease; }
-        /* עיצוב מיוחד לכפתור ההוספה במובייל */
-        #fab-add-job {
-            position: fixed;
-            bottom: 24px;
-            right: 24px;
-            z-index: 40;
-            box-shadow: 0 4px 16px 0 #0001;
-        }
-        @media (min-width: 768px) {
-            #fab-add-job { display: none; }
-        }
-        /* מרווח נוח בין כרטיסים במובייל */
-        .job-card { transition: box-shadow 0.15s; }
-        .job-card:hover { box-shadow: 0 6px 32px #0002; }
     </style>
 </head>
 <body class="bg-gray-100">
 
-    <!-- Full screen loader -->
+    <!-- Loader -->
     <div id="loader" class="fixed inset-0 bg-white flex items-center justify-center z-50">
         <div class="spinner w-16 h-16 border-8 rounded-full"></div>
     </div>
 
-    <!-- Main Structure -->
+    <!-- Main App Structure -->
     <div id="app-content" class="hidden flex h-screen overflow-hidden">
-
-        <!-- Desktop Sidebar -->
+        <!-- Sidebar (desktop & mobile loaded later) -->
         <aside class="hidden md:flex w-64 bg-white shadow-lg flex-col">
-            <div class="p-6 text-center border-b flex flex-col items-center">
-                <span class="rounded-full bg-blue-100 p-2 mb-2"><i class="fas fa-leaf text-blue-600 text-2xl"></i></span>
-                <h1 class="text-2xl font-black text-blue-600 mb-1">כלנית</h1>
-                <p class="text-xs text-gray-400">מערכת ניהול מתקדמת</p>
-            </div>
+            <div class="p-6 text-center border-b"><h1 class="text-2xl font-black text-blue-600">כלנית</h1><p class="text-sm text-gray-500">מערכת ניהול</p></div>
             <nav class="flex-1 px-4 py-6 space-y-2">
-                <a href="index.html" class="sidebar-link active flex items-center p-3 rounded-lg text-blue-600 font-semibold"><i class="fas fa-briefcase w-6 ml-3"></i> ניהול משרות</a>
+                <a href="index.html" class="sidebar-link active flex items-center p-3 rounded-lg"><i class="fas fa-briefcase w-6 ml-3"></i> ניהול משרות</a>
                 <a href="job-applicants.html" class="sidebar-link flex items-center p-3 rounded-lg"><i class="fas fa-users w-6 ml-3"></i> פניות למשרות</a>
                 <a href="general-cvs.html" class="sidebar-link flex items-center p-3 rounded-lg"><i class="fas fa-file-alt w-6 ml-3"></i> קורות חיים כלליים</a>
             </nav>
-            <div class="p-4 border-t">
-                <button id="logout-button-desktop" class="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition"><i class="fas fa-sign-out-alt w-6 ml-3"></i> יציאה</button>
-            </div>
+            <div class="p-4 border-t"><button id="logout-button-desktop" class="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition"><i class="fas fa-sign-out-alt w-6 ml-3"></i> יציאה</button></div>
         </aside>
-
-        <!-- Mobile Sidebar -->
         <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
         <aside id="mobile-sidebar" class="fixed top-0 right-0 h-full w-64 bg-white shadow-lg z-40 transform translate-x-full md:hidden"></aside>
-
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col bg-gray-50">
-            <!-- Mobile Header -->
-            <header class="md:hidden bg-white border-b p-4 flex justify-between items-center shadow-sm sticky top-0 z-20">
-                <div class="flex items-center gap-2">
-                    <span class="rounded-full bg-blue-100 p-1"><i class="fas fa-leaf text-blue-600"></i></span>
-                    <span class="font-black text-blue-600 text-lg">כלנית</span>
-                </div>
-                <button id="hamburger-button" class="text-gray-600 focus:outline-none"><i class="fas fa-bars fa-lg"></i></button>
-            </header>
-            <main class="flex-1 overflow-y-auto px-2 py-4 sm:p-6">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-2xl font-bold text-gray-800">רשימת משרות</h2>
-                    <button id="add-job-btn" class="hidden md:flex items-center bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 shadow-md transition">
+        <div class="flex-1 flex flex-col">
+            <header class="md:hidden bg-white border-b p-4 flex justify-between items-center"><h2 class="text-xl font-semibold">ניהול משרות</h2><button id="hamburger-button" class="text-gray-600 focus:outline-none"><i class="fas fa-bars fa-lg"></i></button></header>
+            <main class="flex-1 overflow-y-auto p-4 sm:p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="hidden md:block text-2xl font-bold text-gray-800">רשימת משרות</h2>
+                    <button id="add-job-btn" class="w-full md:w-auto bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition flex items-center justify-center shadow-md">
                         <i class="fas fa-plus ml-2"></i> הוסף משרה חדשה
                     </button>
                 </div>
-
-                <!-- כרטיסי משרות במובייל, טבלה בדסקטופ -->
-                <div id="jobs-list-container">
-                    <!-- Populated by JS -->
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50"><tr><th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">שם המשרה</th><th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">משרה חמה</th><th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">פעולות</th></tr></thead>
+                            <tbody id="jobs-table-body" class="bg-white divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
                 </div>
             </main>
         </div>
     </div>
 
-    <!-- Floating Action Button במובייל -->
-    <button id="fab-add-job" class="md:hidden flex items-center justify-center bg-blue-600 text-white rounded-full w-16 h-16 text-2xl shadow-lg hover:bg-blue-700 transition fixed">
-        <i class="fas fa-plus"></i>
-    </button>
-
-    <!-- Add/Edit Job Modal -->
+    <!-- Add/Edit Job Modal (כולל שדה קישור לתמונה) -->
     <div id="job-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
         <div class="modal-content bg-white w-full max-w-2xl rounded-lg shadow-2xl p-6 transform -translate-y-10">
             <h3 id="modal-title" class="text-xl font-bold mb-6">הוספת משרה חדשה</h3>
@@ -104,6 +70,7 @@
                     <div><label for="job-location" class="block font-medium text-sm">מיקום</label><input type="text" id="job-location" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
                     <div><label for="job-type" class="block font-medium text-sm">סוג משרה (מלאה, חלקית...)</label><input type="text" id="job-type" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
                     <div class="md:col-span-2"><label for="job-description" class="block font-medium text-sm">תיאור המשרה</label><textarea id="job-description" rows="5" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></textarea></div>
+                    <div class="md:col-span-2"><label for="job-image-url" class="block font-medium text-sm">קישור לתמונה/מודעה</label><input type="url" id="job-image-url" placeholder="https://..." class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
                 </div>
                 <div class="mt-6 flex justify-end gap-3">
                     <button type="button" id="cancel-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">ביטול</button>
@@ -113,7 +80,21 @@
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
+    <!-- מודל קישור תמונה למשרה חמה -->
+    <div id="image-url-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0 z-50">
+        <div class="modal-content bg-white w-full max-w-md rounded-lg shadow-2xl p-8 transform -translate-y-10 text-center relative">
+            <h3 class="text-xl font-bold mb-4 text-blue-700">הוספת קישור לתמונה</h3>
+            <p class="text-gray-600 mb-4">כדי לסמן משרה כחמה יש להוסיף קישור לתמונה/מודעה.</p>
+            <input id="hot-job-image-url" type="url" placeholder="https://example.com/image.jpg" class="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 mb-4">
+            <div id="hot-job-image-url-error" class="text-red-600 text-sm mb-3"></div>
+            <div class="flex justify-center gap-4">
+                <button id="cancel-image-url-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300">ביטול</button>
+                <button id="save-image-url-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700">שמור</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal (כרגיל) -->
     <div id="delete-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
         <div class="modal-content bg-white w-full max-w-md rounded-lg shadow-2xl p-6 text-center transform -translate-y-10">
             <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
@@ -129,8 +110,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
-        
+        import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc, updateDoc, getDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyAOKMJabnJ9JGE5CuclCCSjv5Bo3rT49Cw",
             authDomain: "calanit-31a32.firebaseapp.com",
@@ -161,11 +142,10 @@
             const hamburgerButton = document.getElementById('hamburger-button');
             const mobileSidebar = document.getElementById('mobile-sidebar');
             const mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');
-            const jobsListContainer = document.getElementById('jobs-list-container');
+            const jobsTableBody = document.getElementById('jobs-table-body');
             const jobModal = document.getElementById('job-modal');
             const deleteModal = document.getElementById('delete-modal');
             const addJobBtn = document.getElementById('add-job-btn');
-            const fabAddJob = document.getElementById('fab-add-job');
             const jobForm = document.getElementById('job-form');
             let jobToDeleteId = null;
 
@@ -174,20 +154,15 @@
                 mobileSidebar.classList.toggle('translate-x-full');
                 mobileSidebarOverlay.classList.toggle('hidden');
             };
-            if (hamburgerButton) hamburgerButton.addEventListener('click', toggleMobileMenu);
+            hamburgerButton.addEventListener('click', toggleMobileMenu);
             mobileSidebarOverlay.addEventListener('click', toggleMobileMenu);
-            const desktopSidebar = document.querySelector('aside.md\\:flex');
-            if (desktopSidebar) {
-                mobileSidebar.innerHTML = desktopSidebar.innerHTML;
-            }
+            mobileSidebar.innerHTML = document.querySelector('aside.hidden').innerHTML;
 
             // --- Logout ---
             const logout = () => signOut(auth);
             document.getElementById('logout-button-desktop').addEventListener('click', logout);
-            if (mobileSidebar.querySelector('#logout-button-desktop')) {
-                mobileSidebar.querySelector('#logout-button-desktop').addEventListener('click', logout);
-            }
-            
+            mobileSidebar.querySelector('#logout-button-desktop').addEventListener('click', logout);
+
             // --- Modal Logic ---
             const openModal = (modal) => {
                 modal.classList.remove('hidden');
@@ -201,112 +176,59 @@
                 modal.querySelector('.modal-content').classList.add('-translate-y-10');
                 setTimeout(() => modal.classList.add('hidden'), 250);
             };
-            
-            if (addJobBtn) addJobBtn.addEventListener('click', () => {
-                jobForm.reset();
-                document.getElementById('modal-title').textContent = 'הוספת משרה חדשה';
-                openModal(jobModal);
-            });
-            if (fabAddJob) fabAddJob.addEventListener('click', () => {
+
+            addJobBtn.addEventListener('click', () => {
                 jobForm.reset();
                 document.getElementById('modal-title').textContent = 'הוספת משרה חדשה';
                 openModal(jobModal);
             });
             jobModal.querySelector('#cancel-btn').addEventListener('click', () => closeModal(jobModal));
             deleteModal.querySelector('#cancel-delete-btn').addEventListener('click', () => closeModal(deleteModal));
-            
+
             // --- Firestore Logic ---
             const jobsCollection = collection(db, "jobs");
             const q = query(jobsCollection, orderBy("createdAt", "desc"));
 
             onSnapshot(q, snapshot => {
-                jobsListContainer.innerHTML = '';
+                jobsTableBody.innerHTML = '';
                 if (snapshot.empty) {
-                    jobsListContainer.innerHTML = `
-                        <div class="text-center p-12 bg-white rounded-lg shadow-md flex flex-col items-center my-8">
-                            <i class="fas fa-briefcase text-5xl text-gray-300 mb-4"></i>
-                            <h3 class="text-xl font-bold text-gray-700">לא נמצאו משרות. לחץ על <span class="md:inline-block hidden">"הוסף משרה חדשה"</span><span class="md:hidden inline-block">כפתור +</span> כדי להתחיל.</h3>
-                        </div>
-                    `;
+                    jobsTableBody.innerHTML = `<tr><td colspan="3" class="text-center p-8 text-gray-500">לא נמצאו משרות. לחץ על "הוסף משרה חדשה" כדי להתחיל.</td></tr>`;
                     return;
                 }
-
-                // --- מובייל: כרטיסים --- דסקטופ: טבלה
-                if (window.innerWidth < 768) {
-                    // כרטיסים במובייל
-                    snapshot.forEach(docSnap => {
-                        const job = docSnap.data();
-                        const jobId = docSnap.id;
-                        const card = document.createElement('div');
-                        card.className = 'job-card bg-white rounded-xl shadow-md mb-4 p-4 flex flex-col gap-3 border border-gray-100';
-                        card.innerHTML = `
-                            <div class="flex items-center gap-3">
-                                <span class="rounded-full bg-blue-50 p-2"><i class="fas fa-briefcase text-blue-600"></i></span>
-                                <div>
-                                    <div class="font-bold text-lg text-gray-800">${job.title || ''}</div>
-                                    <div class="text-sm text-gray-500">${job.location || ''} • ${job.type || ''}</div>
-                                </div>
-                                ${job.isHot ? '<span class="ml-auto px-3 py-1 rounded-lg bg-red-100 text-red-600 text-xs font-bold flex items-center gap-1"><i class="fas fa-fire"></i> חמה!</span>' : ''}
-                            </div>
-                            <div class="text-gray-700 text-sm leading-relaxed">${job.description || ''}</div>
-                            <div class="flex justify-end gap-3">
-                                <button class="text-red-500 hover:text-red-700 delete-btn" data-id="${jobId}" title="מחק"><i class="fas fa-trash-alt"></i> מחק</button>
-                                <label class="flex items-center gap-2 text-blue-600 text-sm font-bold cursor-pointer">
-                                    <input type="checkbox" class="is-hot-toggle accent-blue-600" data-id="${jobId}" ${job.isHot ? 'checked' : ''}> משרה חמה
-                                </label>
-                            </div>
-                        `;
-                        jobsListContainer.appendChild(card);
-                    });
-                } else {
-                    // טבלה בדסקטופ
-                    const table = document.createElement('table');
-                    table.className = "min-w-full divide-y divide-gray-200 bg-white rounded-lg shadow-md overflow-hidden";
-                    table.innerHTML = `
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">שם המשרה</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">משרה חמה</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">פעולות</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200"></tbody>
+                snapshot.forEach(docSnap => {
+                    const job = docSnap.data();
+                    const jobId = docSnap.id;
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50';
+                    row.innerHTML = `
+                        <td class="px-6 py-4"><div class="font-semibold text-gray-900">${job.title || ''}</div><div class="text-sm text-gray-500">${job.location || ''}</div></td>
+                        <td class="px-6 py-4 text-center"><input type="checkbox" class="h-5 w-5 rounded text-blue-600 focus:ring-blue-500 is-hot-toggle" data-id="${jobId}" ${job.isHot ? 'checked' : ''}></td>
+                        <td class="px-6 py-4 text-center text-lg space-x-4 space-x-reverse"><button class="text-red-500 hover:text-red-700 delete-btn" data-id="${jobId}" title="מחק"><i class="fas fa-trash-alt"></i></button></td>
                     `;
-                    const tbody = table.querySelector('tbody');
-                    snapshot.forEach(docSnap => {
-                        const job = docSnap.data();
-                        const jobId = docSnap.id;
-                        const row = document.createElement('tr');
-                        row.className = 'hover:bg-gray-50';
-                        row.innerHTML = `
-                            <td class="px-6 py-4">
-                                <div class="font-semibold text-gray-900">${job.title || ''}</div>
-                                <div class="text-sm text-gray-500">${job.location || ''}</div>
-                            </td>
-                            <td class="px-6 py-4 text-center">
-                                <input type="checkbox" class="h-5 w-5 rounded text-blue-600 focus:ring-blue-500 is-hot-toggle" data-id="${jobId}" ${job.isHot ? 'checked' : ''}>
-                            </td>
-                            <td class="px-6 py-4 text-center text-lg space-x-4 space-x-reverse">
-                                <button class="text-red-500 hover:text-red-700 delete-btn" data-id="${jobId}" title="מחק"><i class="fas fa-trash-alt"></i></button>
-                            </td>
-                        `;
-                        tbody.appendChild(row);
-                    });
-                    jobsListContainer.appendChild(table);
-                }
+                    jobsTableBody.appendChild(row);
+                });
             });
 
-            // --- Event Delegation for actions ---
-            jobsListContainer.addEventListener('click', e => {
+            // --- Event Delegation for table actions ---
+            jobsTableBody.addEventListener('click', async e => {
                 const target = e.target.closest('button, input');
                 if (!target) return;
-                
                 const id = target.dataset.id;
                 if (target.matches('.delete-btn')) {
                     jobToDeleteId = id;
                     openModal(deleteModal);
                 }
                 if (target.matches('.is-hot-toggle')) {
+                    if (target.checked) {
+                        const jobDocRef = doc(db, "jobs", id);
+                        const jobDoc = await getDoc(jobDocRef);
+                        const jobData = jobDoc.data();
+                        if (!jobData.imageUrl || jobData.imageUrl.trim() === "") {
+                            openImageUrlModal(id);
+                            target.checked = false;
+                            return;
+                        }
+                    }
                     updateDoc(doc(db, "jobs", id), { isHot: target.checked });
                 }
             });
@@ -319,13 +241,14 @@
                     location: jobForm['job-location'].value,
                     type: jobForm['job-type'].value,
                     description: jobForm['job-description'].value,
+                    imageUrl: jobForm['job-image-url'].value,
                     isHot: false,
                     createdAt: serverTimestamp()
                 });
                 closeModal(jobModal);
             });
 
-            // --- Confirm Delete ---
+            // --- Delete Confirmation ---
             deleteModal.querySelector('#confirm-delete-btn').addEventListener('click', () => {
                 if (jobToDeleteId) {
                     deleteDoc(doc(db, "jobs", jobToDeleteId));
@@ -334,10 +257,35 @@
                 }
             });
 
-            // תמיכה ברספונסיביות דינמית
-            window.addEventListener('resize', () => {
-                // יטען מחדש כרטיסים או טבלה לפי הגודל
-                onSnapshot(query(jobsCollection, orderBy("createdAt", "desc")), () => {});
+            // --- מודל לקישור תמונה ---
+            let currentHotJobId = null;
+            function openImageUrlModal(jobId) {
+                currentHotJobId = jobId;
+                const modal = document.getElementById('image-url-modal');
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    modal.classList.remove('opacity-0');
+                    modal.querySelector('.modal-content').classList.remove('-translate-y-10');
+                }, 10);
+                document.getElementById('hot-job-image-url').value = '';
+                document.getElementById('hot-job-image-url-error').textContent = '';
+            }
+            function closeImageUrlModal() {
+                const modal = document.getElementById('image-url-modal');
+                modal.classList.add('opacity-0');
+                modal.querySelector('.modal-content').classList.add('-translate-y-10');
+                setTimeout(() => modal.classList.add('hidden'), 250);
+            }
+            document.getElementById('cancel-image-url-btn').addEventListener('click', closeImageUrlModal);
+            document.getElementById('save-image-url-btn').addEventListener('click', async () => {
+                const url = document.getElementById('hot-job-image-url').value.trim();
+                const error = document.getElementById('hot-job-image-url-error');
+                if (!url.match(/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)$/i)) {
+                    error.textContent = "יש להזין קישור תקין לתמונה!";
+                    return;
+                }
+                await updateDoc(doc(db, "jobs", currentHotJobId), { imageUrl: url, isHot: true });
+                closeImageUrlModal();
             });
         }
     </script>
