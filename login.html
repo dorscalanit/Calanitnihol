@@ -62,7 +62,6 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
 
-        // This checks if the user is ALREADY logged in and redirects them away from the login page.
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 window.location.replace('index.html');
@@ -85,9 +84,6 @@
             const password = loginForm.password.value;
 
             signInWithEmailAndPassword(auth, email, password)
-                .then(() => {
-                    // On success, the onAuthStateChanged listener above will handle the redirect.
-                })
                 .catch((error) => {
                     errorMessageDiv.textContent = 'שם המשתמש או הסיסמה שגויים.';
                     errorMessageDiv.classList.remove('hidden');
