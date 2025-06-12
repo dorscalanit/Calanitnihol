@@ -16,6 +16,8 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .modal { transition: opacity 0.25s ease; }
         .modal-content { transition: transform 0.25s ease; }
+        .autocomplete-item:hover { background-color: #eef2ff; }
+        select:disabled { background-color: #e5e7eb; cursor: not-allowed; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -27,7 +29,7 @@
 
     <!-- Main App Structure -->
     <div id="app-content" class="hidden flex h-screen overflow-hidden">
-        <!-- Sidebar (desktop & mobile loaded later) -->
+        <!-- Sidebar -->
         <aside class="hidden md:flex w-64 bg-white shadow-lg flex-col">
             <div class="p-6 text-center border-b"><h1 class="text-2xl font-black text-blue-600">כלנית</h1><p class="text-sm text-gray-500">מערכת ניהול</p></div>
             <nav class="flex-1 px-4 py-6 space-y-2">
@@ -39,6 +41,7 @@
         </aside>
         <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
         <aside id="mobile-sidebar" class="fixed top-0 right-0 h-full w-64 bg-white shadow-lg z-40 transform translate-x-full md:hidden"></aside>
+        
         <div class="flex-1 flex flex-col">
             <header class="md:hidden bg-white border-b p-4 flex justify-between items-center"><h2 class="text-xl font-semibold">ניהול משרות</h2><button id="hamburger-button" class="text-gray-600 focus:outline-none"><i class="fas fa-bars fa-lg"></i></button></header>
             <main class="flex-1 overflow-y-auto p-4 sm:p-6">
@@ -60,52 +63,31 @@
         </div>
     </div>
 
-    <!-- Add/Edit Job Modal (כולל שדה קישור לתמונה) -->
-    <div id="job-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
-        <div class="modal-content bg-white w-full max-w-2xl rounded-lg shadow-2xl p-6 transform -translate-y-10">
+    <!-- Add/Edit Job Modal -->
+    <div id="job-modal" class="modal fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden opacity-0">
+        <div class="modal-content bg-white w-full max-w-2xl rounded-lg shadow-2xl p-6 transform -translate-y-10 max-h-[90vh] overflow-y-auto">
             <h3 id="modal-title" class="text-xl font-bold mb-6">הוספת משרה חדשה</h3>
             <form id="job-form">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div class="md:col-span-2"><label for="job-title" class="block font-medium text-sm">שם המשרה</label><input type="text" id="job-title" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
-                    <div><label for="job-location" class="block font-medium text-sm">מיקום</label><input type="text" id="job-location" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
-                    <div><label for="job-type" class="block font-medium text-sm">סוג משרה (מלאה, חלקית...)</label><input type="text" id="job-type" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
-                    <div class="md:col-span-2"><label for="job-description" class="block font-medium text-sm">תיאור המשרה</label><textarea id="job-description" rows="5" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></textarea></div>
-                    <div class="md:col-span-2"><label for="job-image-url" class="block font-medium text-sm">קישור לתמונה/מודעה</label><input type="url" id="job-image-url" placeholder="https://..." class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6">
+                    <div class="md:col-span-2"><label for="job-title" class="block font-medium text-sm">שם המשרה <span class="text-red-500">*</span></label><input type="text" id="job-title" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
+                    
+                    <div class="relative"><label for="job-location" class="block font-medium text-sm">מיקום <span class="text-red-500">*</span></label><input type="text" id="job-location" autocomplete="off" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"><div id="autocomplete-results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-b-lg shadow-lg z-50 hidden max-h-48 overflow-y-auto"></div></div>
+                    
+                    <div><label for="job-main-category" class="block font-medium text-sm">תחום ראשי <span class="text-red-500">*</span></label><select id="job-main-category" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"><option value="">בחר תחום</option></select></div>
+                    
+                    <div><label for="job-subcategory" class="block font-medium text-sm">תת קטגוריה (סוג משרה) <span class="text-red-500">*</span></label><select id="job-subcategory" required disabled class="mt-1 w-full border-gray-300 rounded-md shadow-sm"><option value="">בחר תת קטגוריה</option></select></div>
+
+                    <div class="md:col-span-2"><label for="job-description" class="block font-medium text-sm">תיאור המשרה <span class="text-red-500">*</span></label><textarea id="job-description" rows="5" required class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></textarea></div>
+                    <div class="md:col-span-2"><label for="job-image-url" class="block font-medium text-sm">קישור לתמונה/מודעה (אופציונלי)</label><input type="url" id="job-image-url" placeholder="https://..." class="mt-1 w-full border-gray-300 rounded-md shadow-sm"></div>
                 </div>
-                <div class="mt-6 flex justify-end gap-3">
-                    <button type="button" id="cancel-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">ביטול</button>
-                    <button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">שמור משרה</button>
-                </div>
+                <div class="mt-6 flex justify-end gap-3"><button type="button" id="cancel-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">ביטול</button><button type="submit" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">שמור משרה</button></div>
             </form>
         </div>
     </div>
 
-    <!-- מודל קישור תמונה למשרה חמה -->
-    <div id="image-url-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0 z-50">
-        <div class="modal-content bg-white w-full max-w-md rounded-lg shadow-2xl p-8 transform -translate-y-10 text-center relative">
-            <h3 class="text-xl font-bold mb-4 text-blue-700">הוספת קישור לתמונה</h3>
-            <p class="text-gray-600 mb-4">כדי לסמן משרה כחמה יש להוסיף קישור לתמונה/מודעה.</p>
-            <input id="hot-job-image-url" type="url" placeholder="https://example.com/image.jpg" class="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 mb-4">
-            <div id="hot-job-image-url-error" class="text-red-600 text-sm mb-3"></div>
-            <div class="flex justify-center gap-4">
-                <button id="cancel-image-url-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300">ביטול</button>
-                <button id="save-image-url-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700">שמור</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Delete Confirmation Modal (כרגיל) -->
-    <div id="delete-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0">
-        <div class="modal-content bg-white w-full max-w-md rounded-lg shadow-2xl p-6 text-center transform -translate-y-10">
-            <i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i>
-            <h3 class="text-xl font-bold mb-2">אישור מחיקה</h3>
-            <p class="text-gray-600 mb-6">האם אתה בטוח שברצונך למחוק משרה זו? לא ניתן לשחזר את הפעולה.</p>
-            <div class="flex justify-center gap-4">
-                <button id="cancel-delete-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300">ביטול</button>
-                <button id="confirm-delete-btn" class="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700">כן, מחק</button>
-            </div>
-        </div>
-    </div>
+    <!-- Other Modals: Image URL, Delete Confirmation -->
+    <div id="image-url-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0 z-50"><div class="modal-content bg-white w-full max-w-md rounded-lg shadow-2xl p-8 transform -translate-y-10 text-center relative"><h3 class="text-xl font-bold mb-4 text-blue-700">הוספת קישור לתמונה</h3><p class="text-gray-600 mb-4">כדי לסמן משרה כחמה יש להוסיף קישור לתמונה/מודעה.</p><input id="hot-job-image-url" type="url" placeholder="https://example.com/image.jpg" class="w-full border-gray-300 rounded-md shadow-sm px-3 py-2 mb-4"><div id="hot-job-image-url-error" class="text-red-600 text-sm mb-3"></div><div class="flex justify-center gap-4"><button id="cancel-image-url-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300">ביטול</button><button id="save-image-url-btn" class="bg-blue-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-blue-700">שמור</button></div></div></div>
+    <div id="delete-modal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 hidden opacity-0"><div class="modal-content bg-white w-full max-w-md rounded-lg shadow-2xl p-6 text-center transform -translate-y-10"><i class="fas fa-exclamation-triangle text-4xl text-red-500 mb-4"></i><h3 class="text-xl font-bold mb-2">אישור מחיקה</h3><p class="text-gray-600 mb-6">האם אתה בטוח שברצונך למחוק משרה זו? לא ניתן לשחזר את הפעולה.</p><div class="flex justify-center gap-4"><button id="cancel-delete-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-6 rounded-lg hover:bg-gray-300">ביטול</button><button id="confirm-delete-btn" class="bg-red-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-red-700">כן, מחק</button></div></div></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
@@ -124,20 +106,39 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const loader = document.getElementById('loader');
-        const appContent = document.getElementById('app-content');
+        // --- Global State ---
+        let allCities = [];
+        let jobTypesData = {};
+        let currentEditingJobId = null;
 
+        // --- Main Auth Check ---
         onAuthStateChanged(auth, user => {
             if (user) {
-                loader.style.display = 'none';
-                appContent.classList.remove('hidden');
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('app-content').classList.remove('hidden');
                 initializePageLogic();
             } else {
                 window.location.replace('login.html');
             }
         });
 
-        function initializePageLogic() {
+        async function initializePageLogic() {
+            // --- Data Loading ---
+            async function loadJsonData(filePath, fallback) {
+                try {
+                    const response = await fetch(filePath);
+                    if (!response.ok) throw new Error(`Network error for ${filePath}`);
+                    return await response.json();
+                } catch (error) {
+                    console.error(`Failed to load ${filePath}:`, error);
+                    return fallback;
+                }
+            }
+            [allCities, jobTypesData] = await Promise.all([
+                loadJsonData('cities.json', []),
+                loadJsonData('jobTypesHierarchical.json', {})
+            ]);
+            
             // --- UI Elements ---
             const hamburgerButton = document.getElementById('hamburger-button');
             const mobileSidebar = document.getElementById('mobile-sidebar');
@@ -147,52 +148,79 @@
             const deleteModal = document.getElementById('delete-modal');
             const addJobBtn = document.getElementById('add-job-btn');
             const jobForm = document.getElementById('job-form');
-            let jobToDeleteId = null;
-
-            // --- Mobile Menu ---
-            const toggleMobileMenu = () => {
-                mobileSidebar.classList.toggle('translate-x-full');
-                mobileSidebarOverlay.classList.toggle('hidden');
-            };
+            
+            // --- Mobile Menu & Logout ---
+            const toggleMobileMenu = () => { mobileSidebar.classList.toggle('translate-x-full'); mobileSidebarOverlay.classList.toggle('hidden'); };
             hamburgerButton.addEventListener('click', toggleMobileMenu);
             mobileSidebarOverlay.addEventListener('click', toggleMobileMenu);
             mobileSidebar.innerHTML = document.querySelector('aside.hidden').innerHTML;
-
-            // --- Logout ---
             const logout = () => signOut(auth);
             document.getElementById('logout-button-desktop').addEventListener('click', logout);
             mobileSidebar.querySelector('#logout-button-desktop').addEventListener('click', logout);
 
-            // --- Modal Logic ---
-            const openModal = (modal) => {
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.querySelector('.modal-content').classList.remove('-translate-y-10');
-                }, 10);
-            };
-            const closeModal = (modal) => {
-                modal.classList.add('opacity-0');
-                modal.querySelector('.modal-content').classList.add('-translate-y-10');
-                setTimeout(() => modal.classList.add('hidden'), 250);
-            };
+            // --- Generic Modal Controls ---
+            const openModal = (modal) => { modal.classList.remove('hidden'); setTimeout(() => { modal.classList.remove('opacity-0'); modal.querySelector('.modal-content').classList.remove('-translate-y-10'); }, 10); };
+            const closeModal = (modal) => { modal.classList.add('opacity-0'); modal.querySelector('.modal-content').classList.add('-translate-y-10'); setTimeout(() => modal.classList.add('hidden'), 250); };
 
+            // --- Job Form Modal Logic ---
+            function setupJobModal() {
+                // Autocomplete for location
+                const locationInput = document.getElementById('job-location');
+                const resultsContainer = document.getElementById('autocomplete-results');
+                locationInput.addEventListener('input', () => {
+                    const query = locationInput.value.trim();
+                    if (!query) { resultsContainer.classList.add('hidden'); return; }
+                    const filtered = allCities.filter(c => c.startsWith(query)).slice(0, 5);
+                    resultsContainer.innerHTML = '';
+                    if (filtered.length) {
+                        filtered.forEach(city => {
+                            const item = document.createElement('div');
+                            item.className = 'p-2 cursor-pointer autocomplete-item text-right';
+                            item.textContent = city;
+                            item.addEventListener('click', () => { locationInput.value = city; resultsContainer.classList.add('hidden'); });
+                            resultsContainer.appendChild(item);
+                        });
+                        resultsContainer.classList.remove('hidden');
+                    } else { resultsContainer.classList.add('hidden'); }
+                });
+                document.addEventListener('click', (e) => { if (!locationInput.contains(e.target)) resultsContainer.classList.add('hidden'); });
+
+                // Hierarchical categories
+                const mainCatSelect = document.getElementById('job-main-category');
+                const subCatSelect = document.getElementById('job-subcategory');
+                Object.keys(jobTypesData).forEach(cat => {
+                    mainCatSelect.add(new Option(cat, cat));
+                });
+
+                mainCatSelect.addEventListener('change', () => {
+                    const selectedCat = mainCatSelect.value;
+                    subCatSelect.innerHTML = '<option value="">בחר תת קטגוריה</option>';
+                    if (selectedCat && jobTypesData[selectedCat]) {
+                        jobTypesData[selectedCat].forEach(subCat => subCatSelect.add(new Option(subCat, subCat)));
+                        subCatSelect.disabled = false;
+                    } else {
+                        subCatSelect.disabled = true;
+                    }
+                });
+            }
+            setupJobModal();
+
+            // Open Modal for Adding
             addJobBtn.addEventListener('click', () => {
+                currentEditingJobId = null;
                 jobForm.reset();
+                document.getElementById('job-subcategory').disabled = true;
                 document.getElementById('modal-title').textContent = 'הוספת משרה חדשה';
                 openModal(jobModal);
             });
-            jobModal.querySelector('#cancel-btn').addEventListener('click', () => closeModal(jobModal));
-            deleteModal.querySelector('#cancel-delete-btn').addEventListener('click', () => closeModal(deleteModal));
 
-            // --- Firestore Logic ---
+            // --- Firestore OnSnapshot to render table ---
             const jobsCollection = collection(db, "jobs");
             const q = query(jobsCollection, orderBy("createdAt", "desc"));
-
             onSnapshot(q, snapshot => {
                 jobsTableBody.innerHTML = '';
                 if (snapshot.empty) {
-                    jobsTableBody.innerHTML = `<tr><td colspan="3" class="text-center p-8 text-gray-500">לא נמצאו משרות. לחץ על "הוסף משרה חדשה" כדי להתחיל.</td></tr>`;
+                    jobsTableBody.innerHTML = `<tr><td colspan="3" class="text-center p-8 text-gray-500">לא נמצאו משרות.</td></tr>`;
                     return;
                 }
                 snapshot.forEach(docSnap => {
@@ -201,91 +229,106 @@
                     const row = document.createElement('tr');
                     row.className = 'hover:bg-gray-50';
                     row.innerHTML = `
-                        <td class="px-6 py-4"><div class="font-semibold text-gray-900">${job.title || ''}</div><div class="text-sm text-gray-500">${job.location || ''}</div></td>
+                        <td class="px-6 py-4 whitespace-nowrap"><div class="font-semibold text-gray-900">${job.title || ''}</div><div class="text-sm text-gray-500">${job.location || ''} &bull; ${job.type || ''}</div></td>
                         <td class="px-6 py-4 text-center"><input type="checkbox" class="h-5 w-5 rounded text-blue-600 focus:ring-blue-500 is-hot-toggle" data-id="${jobId}" ${job.isHot ? 'checked' : ''}></td>
-                        <td class="px-6 py-4 text-center text-lg space-x-4 space-x-reverse"><button class="text-red-500 hover:text-red-700 delete-btn" data-id="${jobId}" title="מחק"><i class="fas fa-trash-alt"></i></button></td>
+                        <td class="px-6 py-4 text-center text-lg space-x-4 space-x-reverse">
+                           <button class="text-blue-500 hover:text-blue-700 edit-btn" data-id="${jobId}" title="ערוך"><i class="fas fa-edit"></i></button>
+                           <button class="text-red-500 hover:text-red-700 delete-btn" data-id="${jobId}" title="מחק"><i class="fas fa-trash-alt"></i></button>
+                        </td>
                     `;
                     jobsTableBody.appendChild(row);
                 });
             });
 
-            // --- Event Delegation for table actions ---
+            // --- Table Actions (Edit, Delete, isHot) ---
+            let jobToDeleteId = null;
             jobsTableBody.addEventListener('click', async e => {
                 const target = e.target.closest('button, input');
                 if (!target) return;
                 const id = target.dataset.id;
-                if (target.matches('.delete-btn')) {
-                    jobToDeleteId = id;
-                    openModal(deleteModal);
+                
+                if (target.matches('.delete-btn, .delete-btn *')) {
+                    jobToDeleteId = id; openModal(deleteModal);
+                } 
+                else if (target.matches('.edit-btn, .edit-btn *')) {
+                    const docRef = doc(db, "jobs", id);
+                    const docSnap = await getDoc(docRef);
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        currentEditingJobId = id;
+                        jobForm['job-title'].value = data.title || '';
+                        jobForm['job-location'].value = data.location || '';
+                        jobForm['job-description'].value = data.description || '';
+                        jobForm['job-image-url'].value = data.imageUrl || '';
+                        
+                        const mainCatSelect = jobForm['job-main-category'];
+                        const subCatSelect = jobForm['job-subcategory'];
+                        mainCatSelect.value = data.category || '';
+                        
+                        // Trigger change to populate subcategories
+                        mainCatSelect.dispatchEvent(new Event('change'));
+                        
+                        // Set subcategory value after a tiny delay to ensure options are populated
+                        setTimeout(() => { subCatSelect.value = data.type || ''; }, 0);
+                        
+                        document.getElementById('modal-title').textContent = 'עריכת משרה';
+                        openModal(jobModal);
+                    }
                 }
-                if (target.matches('.is-hot-toggle')) {
+                else if (target.matches('.is-hot-toggle')) {
                     if (target.checked) {
-                        const jobDocRef = doc(db, "jobs", id);
-                        const jobDoc = await getDoc(jobDocRef);
-                        const jobData = jobDoc.data();
-                        if (!jobData.imageUrl || jobData.imageUrl.trim() === "") {
-                            openImageUrlModal(id);
-                            target.checked = false;
-                            return;
+                        const jobDoc = await getDoc(doc(db, "jobs", id));
+                        if (!jobDoc.data().imageUrl) {
+                            openImageUrlModal(id); target.checked = false; return;
                         }
                     }
                     updateDoc(doc(db, "jobs", id), { isHot: target.checked });
                 }
             });
-
-            // --- Form Submission (Add Job) ---
+            
+            // --- Form Submission (Add/Update Job) ---
             jobForm.addEventListener('submit', async e => {
                 e.preventDefault();
-                await addDoc(jobsCollection, {
+                const data = {
                     title: jobForm['job-title'].value,
                     location: jobForm['job-location'].value,
-                    type: jobForm['job-type'].value,
+                    category: jobForm['job-main-category'].value,
+                    type: jobForm['job-subcategory'].value, // 'type' is the subcategory
                     description: jobForm['job-description'].value,
                     imageUrl: jobForm['job-image-url'].value,
                     isHot: false,
                     createdAt: serverTimestamp()
-                });
+                };
+
+                if (currentEditingJobId) {
+                    // Fetch existing doc to preserve isHot and createdAt
+                    const existingDoc = await getDoc(doc(db, "jobs", currentEditingJobId));
+                    data.isHot = existingDoc.data().isHot || false;
+                    delete data.createdAt; // Don't overwrite creation timestamp
+                    await updateDoc(doc(db, "jobs", currentEditingJobId), data);
+                } else {
+                    await addDoc(jobsCollection, data);
+                }
                 closeModal(jobModal);
+                currentEditingJobId = null;
             });
 
-            // --- Delete Confirmation ---
-            deleteModal.querySelector('#confirm-delete-btn').addEventListener('click', () => {
-                if (jobToDeleteId) {
-                    deleteDoc(doc(db, "jobs", jobToDeleteId));
-                    jobToDeleteId = null;
-                    closeModal(deleteModal);
-                }
-            });
-
-            // --- מודל לקישור תמונה ---
+            // --- Other Modals Logic ---
+            jobModal.querySelector('#cancel-btn').addEventListener('click', () => closeModal(jobModal));
+            deleteModal.querySelector('#cancel-delete-btn').addEventListener('click', () => closeModal(deleteModal));
+            deleteModal.querySelector('#confirm-delete-btn').addEventListener('click', () => { if (jobToDeleteId) { deleteDoc(doc(db, "jobs", jobToDeleteId)); jobToDeleteId = null; closeModal(deleteModal); } });
+            
             let currentHotJobId = null;
-            function openImageUrlModal(jobId) {
-                currentHotJobId = jobId;
-                const modal = document.getElementById('image-url-modal');
-                modal.classList.remove('hidden');
-                setTimeout(() => {
-                    modal.classList.remove('opacity-0');
-                    modal.querySelector('.modal-content').classList.remove('-translate-y-10');
-                }, 10);
-                document.getElementById('hot-job-image-url').value = '';
-                document.getElementById('hot-job-image-url-error').textContent = '';
-            }
-            function closeImageUrlModal() {
-                const modal = document.getElementById('image-url-modal');
-                modal.classList.add('opacity-0');
-                modal.querySelector('.modal-content').classList.add('-translate-y-10');
-                setTimeout(() => modal.classList.add('hidden'), 250);
-            }
-            document.getElementById('cancel-image-url-btn').addEventListener('click', closeImageUrlModal);
-            document.getElementById('save-image-url-btn').addEventListener('click', async () => {
+            const imageUrlModal = document.getElementById('image-url-modal');
+            function openImageUrlModal(jobId) { currentHotJobId = jobId; openModal(imageUrlModal); }
+            imageUrlModal.querySelector('#cancel-image-url-btn').addEventListener('click', () => closeModal(imageUrlModal));
+            imageUrlModal.querySelector('#save-image-url-btn').addEventListener('click', async () => {
                 const url = document.getElementById('hot-job-image-url').value.trim();
-                const error = document.getElementById('hot-job-image-url-error');
-                if (!url.match(/^https?:\/\/.+\.(jpg|jpeg|png|webp|gif)$/i)) {
-                    error.textContent = "יש להזין קישור תקין לתמונה!";
-                    return;
-                }
+                const errorEl = document.getElementById('hot-job-image-url-error');
+                if (!url.match(/^https?:\/\/.+/i)) { errorEl.textContent = "יש להזין קישור תקין!"; return; }
+                errorEl.textContent = '';
                 await updateDoc(doc(db, "jobs", currentHotJobId), { imageUrl: url, isHot: true });
-                closeImageUrlModal();
+                closeModal(imageUrlModal);
             });
         }
     </script>
