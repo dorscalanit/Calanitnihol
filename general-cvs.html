@@ -1,115 +1,157 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>כלנית | קורות חיים כלליים</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    <style>
-        body { font-family: 'Heebo', sans-serif; }
-        .sidebar-link.active { background-color: #2563EB; color: white; }
-        .sidebar-link:hover:not(.active) { background-color: #eef2ff; }
-        #mobile-sidebar { transition: transform 0.3s ease-in-out; }
-        .spinner { border-top-color: #3b82f6; animation: spin 1s linear infinite; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>כלנית | קורות חיים כלליים</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    body { font-family: 'Heebo', sans-serif; }
+    .sidebar-link.active { background-color: #2563EB; color: white; }
+    .sidebar-link:hover:not(.active) { background-color: #eef2ff; }
+    #mobile-sidebar { transition: transform 0.3s ease-in-out; }
+    .spinner { border-top-color: #3b82f6; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
 </head>
 <body class="bg-gray-100">
 
-    <div id="loader" class="fixed inset-0 bg-white flex items-center justify-center z-50">
-        <div class="spinner w-16 h-16 border-8 rounded-full"></div>
-    </div>
+  <div id="loader" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+    <div class="spinner w-16 h-16 border-8 rounded-full"></div>
+  </div>
 
-    <div id="app-content" class="hidden flex h-screen overflow-hidden">
-        <!-- Desktop Sidebar -->
-        <aside class="hidden md:flex w-64 bg-white shadow-lg flex-col">
-            <div class="p-6 text-center border-b"><h1 class="text-2xl font-black text-blue-600">כלנית</h1></div>
-            <nav class="flex-1 px-4 py-6 space-y-2">
-                <a href="index.html" class="sidebar-link flex items-center p-3 rounded-lg"><i class="fas fa-briefcase w-6 ml-3"></i> ניהול משרות</a>
-                <a href="job-applicants.html" class="sidebar-link flex items-center p-3 rounded-lg"><i class="fas fa-users w-6 ml-3"></i> פניות למשרות</a>
-                <a href="general-cvs.html" class="sidebar-link active flex items-center p-3 rounded-lg"><i class="fas fa-file-alt w-6 ml-3"></i> קורות חיים כלליים</a>
-            </nav>
-            <div class="p-4 border-t">
-                <button id="logout-button-desktop" class="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition">
-                    <i class="fas fa-sign-out-alt w-6 ml-3"></i> יציאה
-                </button>
-            </div>
-        </aside>
-        
-        <!-- Mobile Sidebar -->
-        <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
-        <aside id="mobile-sidebar" class="fixed top-0 right-0 h-full w-64 bg-white shadow-lg z-40 transform translate-x-full md:hidden"></aside>
+  <div id="app-content" class="hidden flex h-screen overflow-hidden">
+    <!-- Desktop Sidebar -->
+    <aside class="hidden md:flex w-64 bg-white shadow-lg flex-col">
+      <div class="p-6 text-center border-b">
+        <h1 class="text-2xl font-black text-blue-600">כלנית</h1>
+      </div>
+      <nav class="flex-1 px-4 py-6 space-y-2">
+        <a href="index.html" class="sidebar-link flex items-center p-3 rounded-lg">
+          <i class="fas fa-briefcase w-6 ml-3"></i> ניהול משרות
+        </a>
+        <a href="job-applicants.html" class="sidebar-link flex items-center p-3 rounded-lg">
+          <i class="fas fa-users w-6 ml-3"></i> פניות למשרות
+        </a>
+        <a href="general-cvs.html" class="sidebar-link active flex items-center p-3 rounded-lg">
+          <i class="fas fa-file-alt w-6 ml-3"></i> קורות חיים כלליים
+        </a>
+      </nav>
+      <div class="p-4 border-t">
+        <button id="logout-button-desktop" class="w-full flex items-center p-3 text-red-600 hover:bg-red-50 rounded-lg transition">
+          <i class="fas fa-sign-out-alt w-6 ml-3"></i> יציאה
+        </button>
+      </div>
+    </aside>
 
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col">
-            <header class="md:hidden bg-white border-b p-4 flex justify-between items-center">
-                <h2 class="text-xl font-semibold">קורות חיים כלליים</h2>
-                <button id="hamburger-button" class="text-gray-600 focus:outline-none"><i class="fas fa-bars fa-lg"></i></button>
-            </header>
-            <main class="flex-1 overflow-y-auto p-4 sm:p-6">
-                <h2 class="hidden md:block text-2xl font-bold text-gray-800 mb-6">מאגר קורות חיים כללי</h2>
-                <div class="text-center p-12 bg-white rounded-lg shadow-md flex flex-col items-center">
-                    <i class="fas fa-archive text-5xl text-gray-300 mb-4"></i>
-                    <h3 class="text-xl font-bold text-gray-700">מאגר קורות החיים יוצג כאן</h3>
-                </div>
-            </main>
+    <!-- Mobile Sidebar -->
+    <div id="mobile-sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden"></div>
+    <aside id="mobile-sidebar" class="fixed top-0 right-0 h-full w-64 bg-white shadow-lg z-40 transform translate-x-full md:hidden"></aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col">
+      <header class="md:hidden bg-white border-b p-4 flex justify-between items-center">
+        <h2 class="text-xl font-semibold">קורות חיים כלליים</h2>
+        <button id="hamburger-button" class="text-gray-600 focus:outline-none"><i class="fas fa-bars fa-lg"></i></button>
+      </header>
+      <main class="flex-1 overflow-y-auto p-4 sm:p-6">
+        <h2 class="hidden md:block text-2xl font-bold text-gray-800 mb-6">מאגר קורות חיים כללי</h2>
+        <div id="cvs-container" class="space-y-4">
+          <p class="text-gray-500">טוען קורות חיים...</p>
         </div>
+      </main>
     </div>
+  </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyAOKMJabnJ9JGE5CuclCCSjv5Bo3rT49Cw",
-            authDomain: "calanit-31a32.firebaseapp.com",
-            projectId: "calanit-31a32",
-            storageBucket: "calanit-31a32.firebasestorage.app",
-            messagingSenderId: "91430351613",
-            appId: "1:91430351613:web:ae46b2063f2d4b71428494",
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
 
-        const loader = document.getElementById('loader');
-        const appContent = document.getElementById('app-content');
+    // ====== Firebase Config ======
+    const firebaseConfig = {
+      apiKey: "AIzaSyAOKMJabnJ9JGE5CuclCCSjv5Bo3rT49Cw",
+      authDomain: "calanit-31a32.firebaseapp.com",
+      projectId: "calanit-31a32",
+      storageBucket: "calanit-31a32.firebasestorage.app",
+      messagingSenderId: "91430351613",
+      appId: "1:91430351613:web:ae46b2063f2d4b71428494"
+    };
 
-        onAuthStateChanged(auth, user => {
-            if (user) {
-                loader.style.display = 'none';
-                appContent.classList.remove('hidden');
-                initializePageLogic();
-            } else {
-                window.location.replace('login.html');
-            }
-        });
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-        function initializePageLogic() {
-            // Mobile menu logic
-            const hamburgerButton = document.getElementById('hamburger-button');
-            const mobileSidebar = document.getElementById('mobile-sidebar');
-            const mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');
-            const desktopSidebar = document.querySelector('aside.md\\:flex');
-            if (desktopSidebar) {
-                mobileSidebar.innerHTML = desktopSidebar.innerHTML;
-            }
-            const toggleMobileMenu = () => {
-                mobileSidebar.classList.toggle('translate-x-full');
-                mobileSidebarOverlay.classList.toggle('hidden');
-            };
-            if (hamburgerButton) hamburgerButton.addEventListener('click', toggleMobileMenu);
-            mobileSidebarOverlay.addEventListener('click', toggleMobileMenu);
+    const loader = document.getElementById('loader');
+    const appContent = document.getElementById('app-content');
 
-            // Logout support
-            const logout = () => signOut(auth);
-            document.getElementById('logout-button-desktop').addEventListener('click', logout);
-            if (mobileSidebar.querySelector('#logout-button-desktop')) {
-                mobileSidebar.querySelector('#logout-button-desktop').addEventListener('click', logout);
-            }
+    onAuthStateChanged(auth, user => {
+      if (user) {
+        loader.style.display = 'none';
+        appContent.classList.remove('hidden');
+        initializePageLogic();
+      } else {
+        window.location.replace('login.html');
+      }
+    });
+
+    function initializePageLogic() {
+      // Mobile menu logic
+      const hamburgerButton = document.getElementById('hamburger-button');
+      const mobileSidebar = document.getElementById('mobile-sidebar');
+      const mobileSidebarOverlay = document.getElementById('mobile-sidebar-overlay');
+      const desktopSidebar = document.querySelector('aside.md\\:flex');
+      if (desktopSidebar) {
+        mobileSidebar.innerHTML = desktopSidebar.innerHTML;
+      }
+      const toggleMobileMenu = () => {
+        mobileSidebar.classList.toggle('translate-x-full');
+        mobileSidebarOverlay.classList.toggle('hidden');
+      };
+      if (hamburgerButton) hamburgerButton.addEventListener('click', toggleMobileMenu);
+      mobileSidebarOverlay.addEventListener('click', toggleMobileMenu);
+
+      // Logout support
+      const logout = () => signOut(auth);
+      document.getElementById('logout-button-desktop').addEventListener('click', logout);
+      if (mobileSidebar.querySelector('#logout-button-desktop')) {
+        mobileSidebar.querySelector('#logout-button-desktop').addEventListener('click', logout);
+      }
+
+      // Load CVs from Firestore
+      loadGeneralCVs();
+    }
+
+    async function loadGeneralCVs() {
+      const container = document.getElementById('cvs-container');
+      container.innerHTML = '<p class="text-gray-500">טוען קורות חיים...</p>';
+
+      try {
+        const snapshot = await getDocs(collection(db, "generalCVs"));
+        if (snapshot.empty) {
+          container.innerHTML = '<p class="text-gray-500">לא נמצאו קורות חיים.</p>';
+          return;
         }
-    </script>
+        container.innerHTML = '';
+        snapshot.forEach(docSnap => {
+          const data = docSnap.data();
+          const url = data.fileURL || '#';
+          const name = data.name || 'קובץ ללא שם';
+          const item = document.createElement('div');
+          item.className = "bg-white shadow p-4 rounded";
+          item.innerHTML = `
+            <h4 class="font-bold text-lg text-gray-800 mb-2">${name}</h4>
+            <a href="${url}" target="_blank" class="text-blue-600 hover:underline">הצג קובץ</a>
+          `;
+          container.appendChild(item);
+        });
+      } catch (error) {
+        console.error("שגיאה בטעינת קורות חיים:", error);
+        container.innerHTML = '<p class="text-red-500">אירעה שגיאה בטעינה.</p>';
+      }
+    }
+  </script>
 </body>
 </html>
