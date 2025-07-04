@@ -124,12 +124,13 @@
       loadGeneralCVs();
     }
 
+    // === הפונקציה שמציגה את קבצי קורות החיים מהקולקציה jobApplicants ===
     async function loadGeneralCVs() {
       const container = document.getElementById('cvs-container');
       container.innerHTML = '<p class="text-gray-500">טוען קורות חיים...</p>';
 
       try {
-        const snapshot = await getDocs(collection(db, "generalCVs"));
+        const snapshot = await getDocs(collection(db, "jobApplicants"));
         if (snapshot.empty) {
           container.innerHTML = '<p class="text-gray-500">לא נמצאו קורות חיים.</p>';
           return;
@@ -138,12 +139,18 @@
         snapshot.forEach(docSnap => {
           const data = docSnap.data();
           const url = data.fileURL || '#';
-          const name = data.name || 'קובץ ללא שם';
+          const firstName = data.firstName || '';
+          const lastName = data.lastName || '';
+          const phone = data.phone || '';
+          const name = `${firstName} ${lastName}`.trim();
           const item = document.createElement('div');
-          item.className = "bg-white shadow p-4 rounded";
+          item.className = "bg-white shadow p-4 rounded flex flex-col md:flex-row md:items-center md:justify-between";
           item.innerHTML = `
-            <h4 class="font-bold text-lg text-gray-800 mb-2">${name}</h4>
-            <a href="${url}" target="_blank" class="text-blue-600 hover:underline">הצג קובץ</a>
+            <div>
+              <h4 class="font-bold text-lg text-gray-800 mb-1">${name || 'לא צויין שם'}</h4>
+              <div class="text-gray-500 text-sm mb-2">${phone ? 'טלפון: ' + phone : ''}</div>
+            </div>
+            <a href="${url}" target="_blank" class="text-blue-600 font-bold hover:underline mt-2 md:mt-0">הצג קובץ</a>
           `;
           container.appendChild(item);
         });
