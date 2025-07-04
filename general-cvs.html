@@ -58,6 +58,7 @@
       </header>
       <main class="flex-1 overflow-y-auto p-4 sm:p-6">
         <h2 class="hidden md:block text-2xl font-bold text-gray-800 mb-6">מאגר קורות חיים כללי</h2>
+        <div id="msg-container" class="mb-3"></div>
         <div id="cvs-container" class="space-y-4">
           <p class="text-gray-500">טוען קורות חיים...</p>
         </div>
@@ -68,7 +69,8 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-auth.js";
-    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-firestore.js";
+    import { getStorage, ref as storageRef, deleteObject } from "https://www.gstatic.com/firebasejs/11.9.1/firebase-storage.js";
 
     // ====== Firebase Config ======
     const firebaseConfig = {
@@ -83,9 +85,11 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const storage = getStorage(app);
 
     const loader = document.getElementById('loader');
     const appContent = document.getElementById('app-content');
+    const msgContainer = document.getElementById('msg-container');
 
     onAuthStateChanged(auth, user => {
       if (user) {
@@ -124,10 +128,11 @@
       loadGeneralCVs();
     }
 
-    // === הפונקציה שמציגה את קבצי קורות החיים מהקולקציה jobApplicants ===
+    // === הצגת קבצי קורות החיים עם אפשרות מחיקה ===
     async function loadGeneralCVs() {
       const container = document.getElementById('cvs-container');
       container.innerHTML = '<p class="text-gray-500">טוען קורות חיים...</p>';
+      msgContainer.innerHTML = "";
 
       try {
         const snapshot = await getDocs(collection(db, "jobApplicants"));
@@ -143,17 +148,66 @@
           const lastName = data.lastName || '';
           const phone = data.phone || '';
           const name = `${firstName} ${lastName}`.trim();
+          const docId = docSnap.id;
+
+          // שליפת נתיב הקובץ מה-URL של Storage
+          let storagePath = null;
+          try {
+            const matches = url.match(/\/o\/(.*?)\?/);
+            if (matches && matches[1]) {
+              storagePath = decodeURIComponent(matches[1]);
+            }
+          } catch (e) { storagePath = null; }
+
           const item = document.createElement('div');
           item.className = "bg-white shadow p-4 rounded flex flex-col md:flex-row md:items-center md:justify-between";
+
           item.innerHTML = `
             <div>
               <h4 class="font-bold text-lg text-gray-800 mb-1">${name || 'לא צויין שם'}</h4>
               <div class="text-gray-500 text-sm mb-2">${phone ? 'טלפון: ' + phone : ''}</div>
             </div>
-            <a href="${url}" target="_blank" class="text-blue-600 font-bold hover:underline mt-2 md:mt-0">הצג קובץ</a>
+            <div class="flex flex-col md:flex-row md:items-center gap-2 mt-2 md:mt-0">
+              <a href="${url}" target="_blank" class="text-blue-600 font-bold hover:underline">הצג קובץ</a>
+              <button class="delete-cv-btn text-red-600 bg-red-50 px-4 py-2 rounded font-bold hover:bg-red-100 flex items-center gap-2"
+                data-doc-id="${docId}" data-storage-path="${storagePath || ''}">
+                <i class="fas fa-trash"></i> מחק
+              </button>
+            </div>
           `;
           container.appendChild(item);
         });
+
+        // הוספת event למחיקת קובץ
+        document.querySelectorAll('.delete-cv-btn').forEach(btn => {
+          btn.addEventListener('click', async function() {
+            const docId = this.dataset.docId;
+            const storagePath = this.dataset.storagePath;
+            if (!confirm("האם אתה בטוח שברצונך למחוק את קורות החיים האלו?")) return;
+
+            this.disabled = true;
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מוחק...';
+            msgContainer.innerHTML = "";
+
+            try {
+              // 1. מחיקת מסמך מה-DB
+              await deleteDoc(doc(db, "jobApplicants", docId));
+              // 2. מחיקת הקובץ מה-Storage (רק אם הצלחנו לשלוף את הנתיב)
+              if (storagePath) {
+                const fileRef = storageRef(storage, storagePath);
+                await deleteObject(fileRef);
+              }
+              msgContainer.innerHTML = '<div class="text-green-600 font-bold">הקובץ נמחק בהצלחה!</div>';
+              loadGeneralCVs(); // טען מחדש
+            } catch (err) {
+              console.error("שגיאה במחיקה:", err);
+              msgContainer.innerHTML = '<div class="text-red-600 font-bold">אירעה שגיאה במחיקה. נסה שוב.</div>';
+              this.disabled = false;
+              this.innerHTML = '<i class="fas fa-trash"></i> מחק';
+            }
+          });
+        });
+
       } catch (error) {
         console.error("שגיאה בטעינת קורות חיים:", error);
         container.innerHTML = '<p class="text-red-500">אירעה שגיאה בטעינה.</p>';
