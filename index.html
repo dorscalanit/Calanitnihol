@@ -23,7 +23,7 @@
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
         .logo-preview { height: 56px; max-width: 120px; object-fit: contain; background: #f0fdfa; border-radius: 10px; }
         
-        /* New Image Upload Styles */
+        /* Image Upload Styles */
         .file-upload-area { border: 2px dashed #d1d5db; transition: all 0.2s ease; }
         .file-upload-area.drag-over { border-color: #2563EB; background-color: #eef2ff; }
         .image-preview-container { position: relative; }
@@ -90,73 +90,91 @@
 
     <!-- Add/Edit Job Modal -->
     <div id="job-modal" class="modal fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center p-4 hidden z-40">
-        <div class="modal-content bg-white w-full max-w-2xl rounded-lg shadow-2xl max-h-[90vh] flex flex-col">
-            <div class="p-6 border-b">
+        <div class="modal-content bg-white w-full max-w-xl rounded-lg shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="p-6 border-b flex justify-between items-center">
                 <h3 id="modal-title" class="text-2xl font-bold text-gray-800">הוספת משרה חדשה</h3>
+                <div id="modal-step-indicator" class="text-sm font-semibold text-gray-500"></div>
             </div>
-            <form id="job-form" class="p-6 space-y-6 overflow-y-auto">
-                <div>
-                    <label for="job-title" class="block font-medium text-sm mb-1">שם המשרה <span class="text-red-500">*</span></label>
-                    <input type="text" id="job-title" required class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-2">
-                        <label class="block font-medium text-sm">מיקומים <span class="text-red-500">*</span></label>
-                        <div class="relative">
-                            <input type="text" id="job-location-input" autocomplete="off" placeholder="הקלד/י עיר ובחר/י" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                            <div id="location-autocomplete-results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-b-lg shadow-lg z-50 hidden max-h-48 overflow-y-auto"></div>
+            <form id="job-form" class="p-6 space-y-6 overflow-y-auto flex-1">
+                <!-- Step 1: Basic Details -->
+                <div id="modal-step-1">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-4">פרטים בסיסיים</h4>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="job-title" class="block font-medium text-sm mb-1">שם המשרה <span class="text-red-500">*</span></label>
+                            <input type="text" id="job-title" required class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
                         </div>
-                        <div id="location-bubbles-container" class="flex flex-wrap gap-2 pt-2 min-h-[40px]"></div>
-                    </div>
-                    <div class="space-y-2">
-                        <label class="block font-medium text-sm">קטגוריות <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <select id="job-main-category" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="">בחר תחום</option></select>
-                            <select id="job-subcategory" disabled class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="">בחר תת-תחום</option></select>
-                        </div>
-                        <div id="category-bubbles-container" class="flex flex-wrap gap-2 pt-2 min-h-[40px]"></div>
-                    </div>
-                </div>
-                
-                <div>
-                    <label for="job-current-employees" class="block font-medium text-sm mb-1">מספר עובדים נוכחי (אופציונלי)</label>
-                    <input type="number" id="job-current-employees" min="0" placeholder="0" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-
-                <div>
-                    <label for="job-description" class="block font-medium text-sm mb-1">תיאור המשרה <span class="text-red-500">*</span></label>
-                    <textarea id="job-description" rows="5" required class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
-                </div>
-
-                <!-- Image Upload Section -->
-                <div>
-                    <label class="block font-medium text-sm mb-1">תמונה/מודעה (אופציונלי)</label>
-                    <div id="image-upload-container">
-                        <input type="file" id="job-image-upload" class="hidden" accept="image/png, image/jpeg, image/gif">
-                        <label for="job-image-upload" id="file-upload-area" class="file-upload-area rounded-lg p-6 text-center cursor-pointer block">
-                            <div class="flex flex-col items-center justify-center">
-                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
-                                <p class="font-semibold text-blue-600">בחר/י קובץ</p>
-                                <p class="text-xs text-gray-500">או גרור/י לכאן</p>
+                        <div>
+                            <label class="block font-medium text-sm mb-1">מיקומים <span class="text-red-500">*</span></label>
+                            <div class="relative">
+                                <input type="text" id="job-location-input" autocomplete="off" placeholder="הקלד/י עיר ובחר/י" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                                <div id="location-autocomplete-results" class="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-b-lg shadow-lg z-50 hidden max-h-48 overflow-y-auto"></div>
                             </div>
-                        </label>
-                        <div id="image-preview-wrapper" class="mt-4 hidden">
-                            <div class="flex items-center gap-4">
-                                <div class="image-preview-container">
-                                    <img id="image-preview" src="" alt="תצוגה מקדימה" class="w-24 h-24 object-cover rounded-lg bg-gray-100">
-                                    <button type="button" class="remove-image-btn text-red-500 hover:text-red-700" title="הסר תמונה">&times;</button>
+                            <div id="location-bubbles-container" class="flex flex-wrap gap-2 pt-2 min-h-[40px]"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Categories & Optional Details -->
+                <div id="modal-step-2" class="hidden">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-4">סיווג ופרטים נוספים</h4>
+                    <div class="space-y-6">
+                        <div class="space-y-2">
+                            <label class="block font-medium text-sm">קטגוריות (מומלץ)</label>
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                                <select id="job-main-category" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="">בחר תחום</option></select>
+                                <select id="job-subcategory" disabled class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"><option value="">בחר תת-תחום</option></select>
+                            </div>
+                            <div id="category-bubbles-container" class="flex flex-wrap gap-2 pt-2 min-h-[40px]"></div>
+                        </div>
+                        <div>
+                            <label for="job-current-employees" class="block font-medium text-sm mb-1">מספר עובדים נוכחי (אופציונלי)</label>
+                            <input type="number" id="job-current-employees" min="0" placeholder="0" class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Description & Image -->
+                <div id="modal-step-3" class="hidden">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-4">תיאור ותמונה</h4>
+                    <div class="space-y-6">
+                        <div>
+                            <label for="job-description" class="block font-medium text-sm mb-1">תיאור המשרה <span class="text-red-500">*</span></label>
+                            <textarea id="job-description" rows="5" required class="w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"></textarea>
+                        </div>
+                        <div>
+                            <label class="block font-medium text-sm mb-1">תמונה/מודעה (אופציונלי)</label>
+                            <div id="image-upload-container">
+                                <input type="file" id="job-image-upload" class="hidden" accept="image/png, image/jpeg, image/gif">
+                                <label for="job-image-upload" id="file-upload-area" class="file-upload-area rounded-lg p-6 text-center cursor-pointer block">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                                        <p class="font-semibold text-blue-600">בחר/י קובץ</p>
+                                        <p class="text-xs text-gray-500">או גרור/י לכאן</p>
+                                    </div>
+                                </label>
+                                <div id="image-preview-wrapper" class="mt-4 hidden">
+                                    <div class="flex items-center gap-4">
+                                        <div class="image-preview-container">
+                                            <img id="image-preview" src="" alt="תצוגה מקדימה" class="w-24 h-24 object-cover rounded-lg bg-gray-100">
+                                            <button type="button" class="remove-image-btn text-red-500 hover:text-red-700" title="הסר תמונה">&times;</button>
+                                        </div>
+                                        <div id="upload-status" class="text-sm"></div>
+                                    </div>
                                 </div>
-                                <div id="upload-status" class="text-sm"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </form>
             <div class="p-6 mt-auto border-t bg-gray-50 rounded-b-lg">
-                <div class="flex justify-end gap-3">
+                <div class="flex justify-between items-center">
                     <button type="button" id="cancel-btn" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded-lg hover:bg-gray-300">ביטול</button>
-                    <button type="submit" form="job-form" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">שמור משרה</button>
+                    <div class="flex gap-3">
+                        <button type="button" id="modal-back-btn" class="bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 hidden">חזור</button>
+                        <button type="button" id="modal-next-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700">הבא</button>
+                        <button type="submit" form="job-form" id="modal-save-btn" class="bg-blue-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-700 hidden">שמור משרה</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -268,6 +286,7 @@
         let uploadedImageUrl = null;
         let selectedLocations = new Set();
         let selectedCategories = new Set();
+        let currentModalStep = 1; // State for modal wizard
 
         // --- Partners State ---
         let partnersList = [];
@@ -304,6 +323,18 @@
             // --- UI Elements ---
             const jobsTableBody = document.getElementById('jobs-table-body');
             const jobModal = document.getElementById('job-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalStepIndicator = document.getElementById('modal-step-indicator');
+
+            // --- Modal Wizard Elements ---
+            const modalSteps = [
+                document.getElementById('modal-step-1'),
+                document.getElementById('modal-step-2'),
+                document.getElementById('modal-step-3')
+            ];
+            const modalBackButton = document.getElementById('modal-back-btn');
+            const modalNextButton = document.getElementById('modal-next-btn');
+            const modalSaveButton = document.getElementById('modal-save-btn');
             
             // --- Partners Modal Elements ---
             const partnersModal = document.getElementById('partners-modal');
@@ -319,12 +350,83 @@
             // --- Generic Modal Controls ---
             function openModal(modal) { 
                 modal.classList.remove('hidden'); 
-                setTimeout(() => { modal.classList.remove('opacity-0'); }, 10); 
+                setTimeout(() => { modal.style.opacity = 1; }, 10); 
             }
             function closeModal(modal) { 
-                modal.classList.add('opacity-0'); 
+                modal.style.opacity = 0;
                 setTimeout(() => modal.classList.add('hidden'), 250); 
             }
+
+            // --- Job Modal Wizard Logic ---
+            function updateModalWizardView() {
+                modalSteps.forEach((step, index) => {
+                    step.classList.toggle('hidden', index + 1 !== currentModalStep);
+                });
+
+                modalStepIndicator.textContent = `שלב ${currentModalStep} מתוך 3`;
+                modalBackButton.classList.toggle('hidden', currentModalStep === 1);
+                modalNextButton.classList.toggle('hidden', currentModalStep === 3);
+                modalSaveButton.classList.toggle('hidden', currentModalStep !== 3);
+                
+                if (currentEditingJobId) {
+                    modalTitle.textContent = 'עריכת משרה';
+                } else {
+                    modalTitle.textContent = 'הוספת משרה חדשה';
+                }
+            }
+
+            function validateCurrentStep() {
+                const showError = (el) => {
+                    el.classList.add('border-red-500', 'ring', 'ring-red-500', 'ring-opacity-50');
+                    el.focus();
+                    setTimeout(() => el.classList.remove('border-red-500', 'ring', 'ring-red-500', 'ring-opacity-50'), 3000);
+                };
+                
+                document.querySelectorAll('#job-form .border-red-500').forEach(el => el.classList.remove('border-red-500', 'ring', 'ring-red-500', 'ring-opacity-50'));
+
+                switch (currentModalStep) {
+                    case 1:
+                        const titleInput = document.getElementById('job-title');
+                        if (!titleInput.value.trim()) {
+                            showError(titleInput);
+                            return false;
+                        }
+                        if (selectedLocations.size === 0) {
+                            const locationInput = document.getElementById('job-location-input');
+                            showError(locationInput);
+                            const bubblesContainer = document.getElementById('location-bubbles-container');
+                            bubblesContainer.innerHTML = `<p class="text-xs text-red-500">יש לבחור לפחות מיקום אחד.</p>`;
+                            setTimeout(() => locationSystem.render(), 3000);
+                            return false;
+                        }
+                        return true;
+                    case 2:
+                        return true; // Optional step
+                    case 3:
+                        const descriptionInput = document.getElementById('job-description');
+                        if (!descriptionInput.value.trim()) {
+                            showError(descriptionInput);
+                            return false;
+                        }
+                        return true;
+                    default:
+                        return false;
+                }
+            }
+
+            modalNextButton.addEventListener('click', () => {
+                if (validateCurrentStep()) {
+                    currentModalStep++;
+                    updateModalWizardView();
+                }
+            });
+
+            modalBackButton.addEventListener('click', () => {
+                if (currentModalStep > 1) {
+                    currentModalStep--;
+                    updateModalWizardView();
+                }
+            });
 
             // --- Partners Modal Logic ---
             document.getElementById('open-partners-btn').addEventListener('click', () => {
@@ -613,7 +715,9 @@
                 categorySystem.clear();
                 categorySystem.populateSubCategories();
                 resetImageUpload();
-                document.getElementById('modal-title').textContent = 'הוספת משרה חדשה';
+                
+                currentModalStep = 1;
+                updateModalWizardView();
                 openModal(jobModal);
             });
 
@@ -677,7 +781,8 @@
                             uploadStatus.innerHTML = `<span class="text-green-600 font-semibold">תמונה קיימת</span>`;
                         }
                         
-                        document.getElementById('modal-title').textContent = 'עריכת משרה';
+                        currentModalStep = 1;
+                        updateModalWizardView();
                         openModal(jobModal);
                     }
                 } 
@@ -700,8 +805,7 @@
             // --- Form Submission (Add/Update Job) ---
             document.getElementById('job-form').addEventListener('submit', async e => {
                 e.preventDefault();
-                if (selectedLocations.size === 0 || selectedCategories.size === 0) {
-                    alert('יש לבחור לפחות מיקום אחד וקטגוריה אחת.');
+                if (!validateCurrentStep()) { // Final validation on submit
                     return;
                 }
                 
