@@ -156,25 +156,27 @@
           // שליפת נתיב הקובץ מה-URL של Storage
           let storagePath = null;
           try {
-            const matches = url.match(/\/o\/(.*?)\?/);
-            if (matches && matches[1]) {
-              storagePath = decodeURIComponent(matches[1]);
+            const fileUrl = new URL(url);
+            // הנתיב מתחיל אחרי /o/
+            const path = fileUrl.pathname.split('/o/')[1];
+            if (path) {
+              storagePath = decodeURIComponent(path);
             }
-          } catch (e) { storagePath = null; }
+          } catch (e) { 
+            console.error("Could not parse URL or extract storage path:", url, e);
+            storagePath = null; 
+          }
 
-          // --- ✨ שינוי מרכזי כאן ✨ ---
-          // בדיקת סוג הקובץ כדי להחליט אם להשתמש ב-Google Viewer
           const isWordDoc = url.toLowerCase().includes('.doc');
-          let displayUrl = url; // הקישור שיוצג למשתמש
+          let displayUrl = url;
 
           if (isWordDoc) {
-            // אם זה קובץ וורד, נשתמש ב-Google Viewer כדי למנוע הורדה
             displayUrl = `https://docs.google.com/gview?url=${encodeURIComponent(url)}&embedded=true`;
           }
-          // עבור PDF וקבצים אחרים, הקישור הישיר מספיק טוב.
 
           const item = document.createElement('div');
           item.className = "bg-white shadow p-4 rounded flex flex-col md:flex-row md:items-center md:justify-between";
+          item.id = `cv-item-${docId}`; // הוספת ID ייחודי לפריט
 
           item.innerHTML = `
             <div>
@@ -194,32 +196,7 @@
 
         // הוספת event למחיקת קובץ
         document.querySelectorAll('.delete-cv-btn').forEach(btn => {
-          btn.addEventListener('click', async function() {
-            const docId = this.dataset.docId;
-            const storagePath = this.dataset.storagePath;
-            if (!confirm("האם אתה בטוח שברצונך למחוק את קורות החיים האלו?")) return;
-
-            this.disabled = true;
-            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מוחק...';
-            msgContainer.innerHTML = "";
-
-            try {
-              // 1. מחיקת מסמך מה-DB
-              await deleteDoc(doc(db, "jobApplicants", docId));
-              // 2. מחיקת הקובץ מה-Storage (רק אם הצלחנו לשלוף את הנתיב)
-              if (storagePath) {
-                const fileRef = storageRef(storage, storagePath);
-                await deleteObject(fileRef);
-              }
-              msgContainer.innerHTML = '<div class="text-green-600 font-bold">הקובץ נמחק בהצלחה!</div>';
-              loadGeneralCVs(); // טען מחדש
-            } catch (err) {
-              console.error("שגיאה במחיקה:", err);
-              msgContainer.innerHTML = '<div class="text-red-600 font-bold">אירעה שגיאה במחיקה. נסה שוב.</div>';
-              this.disabled = false;
-              this.innerHTML = '<i class="fas fa-trash"></i> מחק';
-            }
-          });
+          btn.addEventListener('click', handleDeleteCv);
         });
 
       } catch (error) {
@@ -227,6 +204,49 @@
         container.innerHTML = '<p class="text-red-500">אירעה שגיאה בטעינה.</p>';
       }
     }
+
+    // --- ✨ פונקציית מחיקה חדשה ומשופרת ✨ ---
+    async function handleDeleteCv(event) {
+        const button = event.currentTarget;
+        const docId = button.dataset.docId;
+        const storagePath = button.dataset.storagePath;
+
+        // הערה: חלון האישור המובנה של הדפדפן (confirm) נחסם בסביבה זו.
+        // מומלץ להחליף אותו בחלון מודאלי מעוצב לאישור המחיקה.
+
+        button.disabled = true;
+        button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> מוחק...';
+        msgContainer.innerHTML = "";
+
+        try {
+            // שלב 1: מחיקת המסמך מה-DB
+            await deleteDoc(doc(db, "jobApplicants", docId));
+            
+            // שלב 2: מחיקת הקובץ מה-Storage (רק אם קיים נתיב)
+            if (storagePath && storagePath !== 'null') {
+                const fileRef = storageRef(storage, storagePath);
+                await deleteObject(fileRef);
+            } else {
+                console.warn(`Storage path for doc ${docId} is missing or invalid. Skipping file deletion from Storage.`);
+            }
+
+            // שלב 3: הסרת האלמנט מהדף באופן מיידי לחוויה טובה יותר
+            const itemToRemove = document.getElementById(`cv-item-${docId}`);
+            if (itemToRemove) {
+                itemToRemove.remove();
+            }
+
+            msgContainer.innerHTML = '<div class="text-green-600 font-bold">הקובץ נמחק בהצלחה!</div>';
+            setTimeout(() => { msgContainer.innerHTML = ''; }, 4000);
+
+        } catch (err) {
+            console.error("שגיאה במחיקה:", err);
+            msgContainer.innerHTML = `<div class="text-red-600 font-bold">אירעה שגיאה במחיקה: ${err.message}</div>`;
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-trash"></i> מחק';
+        }
+    }
+
   </script>
 </body>
 </html>
